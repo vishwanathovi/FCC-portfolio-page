@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dailyEntries DailyEntry[]
+  thoughts     Thought[]
+}
+
+model DailyEntry {
+  id     String @id @default(cuid())
+  userId String
+  date   String // YYYY-MM-DD
+
+  // Morning inputs
+  mood            String?
+  energyLevel     Int?
+  mindDump        String?
+  top3            String? // JSON array stored as string
+  enoughStatement String?
+  canWait         String?
+  avoiding        String?
+  selfSupport     String?
+  aiMorningResponse String? // Full AI JSON as string
+
+  // Evening inputs
+  eveningDone       String?
+  eveningUnfinished String?
+  eveningProud      String?
+  eveningBlaming    String?
+  eveningParked     String?
+  eveningValues     String?
+  eveningEnough     String?
+  aiEveningResponse String? // Full AI JSON as string
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model Thought {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+
+  rawThought      String
+  intensityBefore Int?
+  aiResponse      String? // Full AI JSON as string
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
